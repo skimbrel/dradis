@@ -16,6 +16,28 @@ DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
 DEFAULT_ZOOM = 15
 
 
+class Directions(object):
+    NORTH = 'north'
+    SOUTH = 'south'
+    EAST = 'east'
+    WEST = 'west'
+    IN = 'in'
+    OUT = 'out'
+
+KEYWORD_TO_DIRECTION = {
+    'north': Directions.NORTH,
+    'up': Directions.NORTH,
+    'south': Directions.SOUTH,
+    'down': Directions.SOUTH,
+    'west': Directions.WEST,
+    'left': Directions.WEST,
+    'east': Directions.EAST,
+    'right': Directions.EAST,
+    'in': Directions.IN,
+    'out': Directions.OUT,
+}
+
+
 @app.route('/', methods=['POST'])
 def get_map():
     phone_number = request.form['From']
@@ -28,6 +50,7 @@ def get_map():
         location = dict(lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
     response = _build_map_response(location)
+    _store_location(phone_number, location)
 
     return unicode(response)
 
@@ -53,14 +76,10 @@ def _get_stored_location(phone_number):
     return redis_client.hgetall(phone_number)
 
 
-def _store_location(phone_number, lat, lon, zoom):
+def _store_location(phone_number, location_dict):
     redis_client.hmset(
         phone_number,
-        {
-            'lat': lat,
-            'lon': lon,
-            'zoom': zoom,
-        },
+        location_dict,
     )
 
 
