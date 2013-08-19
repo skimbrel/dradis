@@ -65,7 +65,7 @@ LON_PAN_DISTANCE_MAP = {
     '6': 6.40,
 }
 
-GOOGLE_MAPS_URI = 'http://maps.googleapis.com/maps/api/directions/json?'
+GMAPS_DIRECTIONS_URI = 'http://maps.googleapis.com/maps/api/directions/json?'
 STREETVIEW_URI = 'http://maps.googleapis.com/maps/api/streetview?'
 
 
@@ -94,9 +94,11 @@ KEYWORD_TO_DIRECTION = {
 DIRECTIONS_OR = '|'.join(KEYWORD_TO_DIRECTION.keys())
 DIRECTIONS_RE = re.compile('^{}$'.format(DIRECTIONS_OR), re.IGNORECASE)
 
+DESTINATION_RE = re.compile('^to:', re.IGNORECASE)
+
 
 @app.route('/', methods=['POST'])
-def get_map():
+def handle_request():
     phone_number = request.form['From']
     body = request.form['Body']
 
@@ -110,8 +112,13 @@ def get_map():
             response = twiml.Response()
             response.Message(body=u"Please enter a location to start from!")
             return unicode(response)
+    elif DESTINATION_RE.match(body):
+        # OK, get them some directions.
+        destination = DESTINATION_RE.replace(body)
+        # XXX use destination with current location place to get directions
+
     else:
-        # New location
+        # Just show the location requested.
         place, (lat, lon) = geocoder.geocode(body)
         location = dict(lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
@@ -150,7 +157,7 @@ def get_directions(orig, dest):
     for d in destination:
         new_dest += d + "+"
 
-    return GOOGLE_MAPS_URI + new_origin + new_dest + "&sensor=false"
+    return GMAPS_DIRECTIONS_URI + new_origin + new_dest + "&sensor=false"
 
 
 def get_steps(orig, dest):
