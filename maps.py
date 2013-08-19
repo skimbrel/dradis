@@ -12,7 +12,8 @@ redis_client = redis.from_url('redis://localhost:6379')
 
 STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
-
+GOOGLE_MAPS_URI = 'http://maps.googleapis.com/maps/api/directions/json?origin='
+STREETVIEW_URI = 'http://maps.googleapis.com/maps/api/streetview?'
 
 @app.route('/', methods=['POST'])
 def get_map():
