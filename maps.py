@@ -12,6 +12,8 @@ from twilio import twiml
 import json
 import pprint
 
+DEBUG = False
+
 
 # XXX replace with twilio-scoped import once we publish the new lib
 import twiml
@@ -157,23 +159,26 @@ def get_steps(orig, dest):
 
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
-    pprint.pprint(jsonResponse)
+    if DEBUG:
+        pprint.pprint(jsonResponse)
 
     steps = []
-    print "------------------------------------------------------------------------------------------------"
+    if DEBUG:
+        print "------------------------------------------------------------------------------------------------"
 
-    #print jsonResponse["routes"][0]["legs"]
-    pprint.pprint (jsonResponse["routes"][0]["legs"][0]["steps"][0])
+        pprint.pprint (jsonResponse["routes"][0]["legs"][0]["steps"][0])
     for item in jsonResponse["routes"][0]["legs"][0]["steps"]:
-        print "start: {}".format(item["start_location"])
-        print "end: {}".format(item["end_location"])
+        if DEBUG:
+            print "start: {}".format(item["start_location"])
+            print "end: {}".format(item["end_location"])
 
         steps.append((item["start_location"]["lat"], item["start_location"]["lng"], item["html_instructions"]))
-        print "+++++++++++++++++++++++"
+        if DEBUG:
+            print "+++++++++++++++++++++++"
 
-
-    print "VALUES OF STEPS"
-    print steps
+    if DEBUG:
+        print "VALUES OF STEPS"
+        print steps
 
     r = twiml.Response()
     locations = []
@@ -186,9 +191,10 @@ def get_steps(orig, dest):
 
     for key, value, html in steps:
         loc = img + "location=" + str(key) + "," + str(value) + "," + str(html)
-        print loc
+        if DEBUG:
+            print loc
         directions = html
-        msg = r.message(body=html)
+        msg = r.message(body=(html ))
         msg.media(loc)
 
     print str(r)
@@ -249,5 +255,6 @@ def _apply_movement(location, direction):
 if __name__ == '__main__':
     app.debug = True
     #app.run()
+    #DEBUG=True
     get_steps("Seattle Washington", "San Francisco CA")
 
