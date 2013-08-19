@@ -142,7 +142,7 @@ def _parse_navigation(body):
     if DIRECTIONS_RE.match(body):
         # Since a location string might contain a directional word,
         # require an *exact* match against one of our commands.
-        return KEYWORD_TO_DIRECTION[body]
+        return KEYWORD_TO_DIRECTION[body.lower()]
 
     return None
 
