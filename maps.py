@@ -17,6 +17,29 @@ STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
 DEFAULT_ZOOM = 15
 
+ZOOM_LEVEL_TO_PAN_DISTANCE = {
+    '20': 0.0005,
+    '19': 0.001,
+    '18': 0.0012,
+    '17': 0.0015,
+    '16': 0.004,
+    '15': 0.0075,
+    '14': 0.015,
+    '13': 0.03,
+    '12': 0.06,
+    '11': 0.10,
+    '10': 0.20,
+    '9': 0.40,
+    '8': 0.80,
+    '7': 1.60,
+    '6': 3.20,
+    '5': 6.40,
+    '4': 13,
+    '3': 26,
+    '2': 52,
+}
+
+
 GOOGLE_MAPS_URI = 'http://maps.googleapis.com/maps/api/directions/json?origin='
 STREETVIEW_URI = 'http://maps.googleapis.com/maps/api/streetview?'
 
