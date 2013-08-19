@@ -97,8 +97,13 @@ def get_map():
     location = _get_stored_location(phone_number)
     nav_cmd = _parse_navigation(body)
 
-    if location and nav_cmd is not None:
-        location = _apply_movement(location, nav_cmd)
+    if nav_cmd is not None:
+        if location:
+            location = _apply_movement(location, nav_cmd)
+        else:
+            response = twiml.Response()
+            response.Message(body=u"Please enter a location to start from!")
+            return unicode(response)
     else:
         # New location
         place, (lat, lon) = geocoder.geocode(body)
