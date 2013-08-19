@@ -66,7 +66,7 @@ LON_PAN_DISTANCE_MAP = {
 }
 
 GMAPS_DIRECTIONS_URI = 'http://maps.googleapis.com/maps/api/directions/json?'
-STREETVIEW_URI = 'http://maps.googleapis.com/maps/api/streetview?'
+STREETVIEW_URI = 'http://maps.googleapis.com/maps/api/streetview'
 
 
 class Directions(object):
@@ -114,7 +114,7 @@ def handle_request():
             return unicode(response)
     elif DESTINATION_RE.match(body):
         # OK, get them some directions.
-        destination = DESTINATION_RE.replace(body)
+        destination = re.sub(DESTINATION_RE, '', body)
         # XXX use destination with current location place to get directions
         if (not location):
             response = twiml.Response()
