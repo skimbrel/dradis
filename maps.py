@@ -207,8 +207,8 @@ def get_steps(orig, dest):
         msg.media(streetview_url)
 
     end = jsonResponse["routes"][0]["legs"][0]["steps"][-1]["end_location"]
-    lag = end["lat"]
-    lng = end["lng"]
+    lat = end["lat"]
+    lon = end["lng"]
     params = {
             'location': '{},{}'.format(str(lat), str(lon)),
             'heading': str(heading),
