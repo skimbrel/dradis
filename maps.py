@@ -149,15 +149,15 @@ def get_directions(orig, dest):
 
     return GOOGLE_MAPS_URI + new_origin + new_dest + "&sensor=false"
 
-def get_steps():
+def get_steps(orig, dest):
     # connect to google api json
-    decodeme = get_directions("182 Douglass Street San Francisco CA 94114", "Seattle, Washington")
+    decodeme = get_directions(orig, dest)
 
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
     pprint.pprint(jsonResponse)
 
-    steps = {}
+    steps = []
     print "------------------------------------------------------------------------------------------------"
 
     #print jsonResponse["routes"][0]["legs"]
@@ -166,7 +166,7 @@ def get_steps():
         print "start: {}".format(item["start_location"])
         print "end: {}".format(item["end_location"])
 
-        steps.update({item["start_location"]["lat"]: item["start_location"]["lng"]})
+        steps.append((item["start_location"]["lat"], item["start_location"]["lng"], item["html_instructions"]))
 
         #print item["html_directions"]
         #pprint.pprint(item)
@@ -185,11 +185,11 @@ def get_steps():
         img += key + "=" + value + "&"
 
 
-    for key, value in steps.items():
-        loc = img + "location=" + str(key) + "," + str(value)
+    for key, value, html in steps:
+        loc = img + "location=" + str(key) + "," + str(value) + "," + str(html)
         print loc
         directions ="placeholder directions"
-        msg = r.message(body=directions) #body= for html dirs
+        msg = r.message(body=html) #body= for html dirs
         msg.media(loc)
 
     print str(r)
@@ -250,5 +250,5 @@ def _apply_movement(location, direction):
 if __name__ == '__main__':
     app.debug = True
     #app.run()
-    get_steps()
+    get_steps("Seattle Washington", "San Francisco CA")
 
