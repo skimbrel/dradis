@@ -169,9 +169,6 @@ def get_steps(orig, dest):
         print "end: {}".format(item["end_location"])
 
         steps.append((item["start_location"]["lat"], item["start_location"]["lng"], item["html_instructions"]))
-
-        #print item["html_directions"]
-        #pprint.pprint(item)
         print "+++++++++++++++++++++++"
 
 
@@ -190,8 +187,8 @@ def get_steps(orig, dest):
     for key, value, html in steps:
         loc = img + "location=" + str(key) + "," + str(value) + "," + str(html)
         print loc
-        directions ="placeholder directions"
-        msg = r.message(body=html) #body= for html dirs
+        directions = html
+        msg = r.message(body=html)
         msg.media(loc)
 
     print str(r)
