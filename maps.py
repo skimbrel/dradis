@@ -187,7 +187,6 @@ def get_steps(orig, dest):
         msg = r.message(body=instructions)
         msg.media(streetview_url)
 
-    print str(r)
     return r
 
 
