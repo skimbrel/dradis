@@ -124,7 +124,6 @@ def handle_request():
             #we have both
             return unicode(get_steps(location["place"], destination))
 
-
     else:
         # Just show the location requested.
         place, (lat, lon) = geocoder.geocode(body)
@@ -162,8 +161,8 @@ def get_directions(orig, dest):
     new_dest = "&destination="
     for c in origin:
         new_origin += c + "+"
-    for d in destination:
-        new_dest += d + "+"
+        for d in destination:
+            new_dest += d + "+"
 
     return GMAPS_DIRECTIONS_URI + new_origin + new_dest + "&sensor=false"
 
@@ -184,7 +183,7 @@ def get_steps(orig, dest):
         params.update(DEFAULT_MAPS_PARAMS)
 
         streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
-        msg = r.message(body=instructions)
+        msg = r.message(msg=instructions)
         msg.media(streetview_url)
 
     return r
