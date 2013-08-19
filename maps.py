@@ -116,11 +116,19 @@ def handle_request():
         # OK, get them some directions.
         destination = DESTINATION_RE.replace(body)
         # XXX use destination with current location place to get directions
+        if (not location):
+            response = twiml.Response()
+            response.Message(body=u"Please provide a starting location first.")
+            return unicode(response)
+        else:
+            #we have both
+            return unicode(get_steps(location["place"], destination))
+
 
     else:
         # Just show the location requested.
         place, (lat, lon) = geocoder.geocode(body)
-        location = dict(lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
+        location = dict(place=place, lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
     response = _build_map_response(location)
     _store_location(phone_number, location)
