@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 from urllib import urlencode
@@ -12,6 +13,8 @@ import twiml
 
 
 app = flask.Flask(__name__)
+streamhandler = logging.StreamHandler()
+app.logger.addHandler(streamhandler)
 
 geocoder = geocoders.GoogleV3()
 redis_client = redis.from_url(os.getenv('REDIS_URL'))
