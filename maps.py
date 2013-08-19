@@ -1,11 +1,14 @@
 import os
+import re
 from urllib import urlencode
 
 import flask
 import redis
 from flask import request
 from geopy import geocoders
-from twilio import twiml
+
+# XXX replace with twilio-scoped import once we publish the new lib
+import twiml
 
 
 app = flask.Flask(__name__)
@@ -15,9 +18,9 @@ redis_client = redis.from_url(os.getenv('REDIS_URL'))
 
 STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
-DEFAULT_ZOOM = 15
+DEFAULT_ZOOM = '15'
 
-ZOOM_LEVEL_TO_PAN_DISTANCE = {
+LAT_PAN_DISTANCE_MAP = {
     '20': 0.0005,
     '19': 0.001,
     '18': 0.0012,
@@ -33,10 +36,24 @@ ZOOM_LEVEL_TO_PAN_DISTANCE = {
     '8': 0.80,
     '7': 1.60,
     '6': 3.20,
-    '5': 6.40,
-    '4': 13,
-    '3': 26,
-    '2': 52,
+}
+
+LON_PAN_DISTANCE_MAP = {
+    '20': 0.001,
+    '19': 0.0012,
+    '18': 0.0015,
+    '17': 0.004,
+    '16': 0.0075,
+    '15': 0.015,
+    '14': 0.03,
+    '13': 0.06,
+    '12': 0.10,
+    '11': 0.20,
+    '10': 0.40,
+    '9': 0.80,
+    '8': 1.60,
+    '7': 3.20,
+    '6': 6.40,
 }
 
 
@@ -65,6 +82,9 @@ KEYWORD_TO_DIRECTION = {
     'out': Directions.OUT,
 }
 
+DIRECTIONS_OR = '|'.join(KEYWORD_TO_DIRECTION.keys())
+DIRECTIONS_RE = re.compile('^{}$'.format(DIRECTIONS_OR), re.IGNORECASE)
+
 
 @app.route('/', methods=['POST'])
 def get_map():
@@ -72,8 +92,12 @@ def get_map():
     body = request.form['Body']
 
     location = _get_stored_location(phone_number)
+    nav_cmd = _parse_navigation(body)
 
-    if not location:
+    if location and nav_cmd is not None:
+        location = _apply_movement(location, nav_cmd)
+    else:
+        # New location
         place, (lat, lon) = geocoder.geocode(body)
         location = dict(lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
@@ -109,6 +133,46 @@ def _store_location(phone_number, location_dict):
         phone_number,
         location_dict,
     )
+
+
+def _parse_navigation(body):
+    if DIRECTIONS_RE.match(body):
+        # Since a location string might contain a directional word,
+        # require an *exact* match against one of our commands.
+        return KEYWORD_TO_DIRECTION[body]
+
+    return None
+
+
+def _apply_movement(location, direction):
+    lat, lon = float(location['lat']), float(location['lon'])
+    zoom = int(location['zoom'])
+    if direction is Directions.NORTH:
+        pan_distance = LAT_PAN_DISTANCE_MAP[location['zoom']]
+        lat += pan_distance
+
+    elif direction is Directions.SOUTH:
+        pan_distance = LAT_PAN_DISTANCE_MAP[location['zoom']]
+        lat -= pan_distance
+
+    elif direction is Directions.EAST:
+        pan_distance = LON_PAN_DISTANCE_MAP[location['zoom']]
+        lon += pan_distance
+
+    elif direction is Directions.WEST:
+        pan_distance = LON_PAN_DISTANCE_MAP[location['zoom']]
+        lon -= pan_distance
+
+    elif direction is Directions.IN:
+        zoom += 1
+
+    elif direction is Directions.OUT:
+        zoom -= 1
+
+    else:
+        raise ValueError("Unknown direction {}".format(direction))
+
+    return dict(lat=str(lat), lon=str(lon), zoom=str(zoom))
 
 
 if __name__ == '__main__':
