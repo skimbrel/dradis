@@ -15,6 +15,9 @@ STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
 DEFAULT_ZOOM = 15
 
+GOOGLE_MAPS_URI = 'http://maps.googleapis.com/maps/api/directions/json?origin='
+STREETVIEW_URI = 'http://maps.googleapis.com/maps/api/streetview?'
+
 
 class Directions(object):
     NORTH = 'north'
@@ -36,7 +39,6 @@ KEYWORD_TO_DIRECTION = {
     'in': Directions.IN,
     'out': Directions.OUT,
 }
-
 
 @app.route('/', methods=['POST'])
 def get_map():
