@@ -1,6 +1,5 @@
 import json
 import logging
-import pprint
 import os
 import re
 import urllib
@@ -138,6 +137,7 @@ def _build_map_response(location):
 
     return r
 
+
 def get_directions(orig, dest):
     #Takes in an origin & destination and returns the direction via google maps api
     origin = orig.split()
@@ -152,47 +152,25 @@ def get_directions(orig, dest):
 
     return GOOGLE_MAPS_URI + new_origin + new_dest + "&sensor=false"
 
+
 def get_steps(orig, dest):
     # connect to google api json
     decodeme = get_directions(orig, dest)
 
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
-    if DEBUG:
-        pprint.pprint(jsonResponse)
-
-    steps = []
-    if DEBUG:
-        print "------------------------------------------------------------------------------------------------"
-
-        pprint.pprint (jsonResponse["routes"][0]["legs"][0]["steps"][0])
-    for item in jsonResponse["routes"][0]["legs"][0]["steps"]:
-        if DEBUG:
-            print "start: {}".format(item["start_location"])
-            print "end: {}".format(item["end_location"])
-
-        steps.append((item["start_location"]["lat"], item["start_location"]["lng"], item["html_instructions"]))
-        if DEBUG:
-            print "+++++++++++++++++++++++"
-
-    if DEBUG:
-        print "VALUES OF STEPS"
-        print steps
-
     r = twiml.Response()
+    for item in jsonResponse["routes"][0]["legs"][0]["steps"]:
+        lat = item["start_location"]["lat"]
+        lon = item["start_location"]["lng"]
+        instructions = strip_tags(item["html_instructions"])
 
-    #Encode our streetviews
-    img = STREETVIEW_URI
-    for key, value in DEFAULT_MAPS_PARAMS.items():
-        img += key + "=" + value + "&"
+        params = {'location': '{},{}'.format(str(lat), str(lon))}
+        params.update(DEFAULT_MAPS_PARAMS)
 
-    for key, value, instructions in steps:
-        stripped_instructions = strip_tags(instructions)
-        loc = img + "location=" + str(key) + "," + str(value) + "," + stripped_instructions
-        msg = r.message(body=stripped_instructions)
-        if DEBUG:
-            print loc
-        msg.media(loc)
+        streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
+        msg = r.message(body=instructions)
+        msg.media(streetview_url)
 
     print str(r)
     return r
@@ -249,15 +227,16 @@ def _apply_movement(location, direction):
     return dict(lat=str(lat), lon=str(lon), zoom=str(zoom))
 
 
-
 # HTMLParser subclass to strip all tags out of text.
 # Taken from http://stackoverflow.com/a/925630
 class MLStripper(HTMLParser):
     def __init__(self):
         self.reset()
         self.fed = []
+
     def handle_data(self, d):
         self.fed.append(d)
+
     def get_data(self):
         return ''.join(self.fed)
 
