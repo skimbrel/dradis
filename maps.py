@@ -4,6 +4,11 @@ import os
 import re
 import urllib
 from HTMLParser import HTMLParser
+from math import atan2
+from math import cos
+from math import degrees
+from math import radians
+from math import sin
 from urllib import urlencode
 
 import flask
@@ -167,6 +172,24 @@ def get_directions(orig, dest):
     return GMAPS_DIRECTIONS_URI + new_origin + new_dest + "&sensor=false"
 
 
+def _heading(start, end):
+    """Compute compass heading between a pair of lat/lon points.
+
+    Based on formulae found at
+    http://www.movable-type.co.uk/scripts/latlong.html.
+    """
+    start_lat = radians(float(start['lat']))
+    end_lat = radians(float(end['lat']))
+    delta_lon = radians(float(end['lng']) - float(start['lng']))
+
+    y = sin(delta_lon) * cos(end_lat)
+    x = ((cos(start_lat) * sin(end_lat)) -
+         (sin(start_lat) * cos(end_lat) * cos(delta_lon)))
+    heading = degrees(atan2(y, x))
+    normalized = (heading + 360) % 360
+    return int(normalized)
+
+
 def get_steps(orig, dest):
     # connect to google api json
     decodeme = get_directions(orig, dest)
@@ -177,9 +200,13 @@ def get_steps(orig, dest):
     for item in jsonResponse["routes"][0]["legs"][0]["steps"]:
         lat = item["start_location"]["lat"]
         lon = item["start_location"]["lng"]
+        heading = _heading(item["start_location"], item["end_location"])
         instructions = strip_tags(item["html_instructions"])
 
-        params = {'location': '{},{}'.format(str(lat), str(lon))}
+        params = {
+            'location': '{},{}'.format(str(lat), str(lon)),
+            'heading': str(heading),
+        }
         params.update(DEFAULT_MAPS_PARAMS)
 
         streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
