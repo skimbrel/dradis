@@ -264,6 +264,4 @@ def strip_tags(html):
 
 if __name__ == '__main__':
     app.debug = True
-    #app.run()
-    #DEBUG=True
-    get_steps("Seattle Washington", "San Francisco CA")
+    app.run()
