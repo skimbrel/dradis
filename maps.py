@@ -70,7 +70,7 @@ LON_PAN_DISTANCE_MAP = {
     '6': 6.40,
 }
 
-GMAPS_DIRECTIONS_URI = 'http://maps.googleapis.com/maps/api/directions/json?'
+GMAPS_DIRECTIONS_URI = 'http://maps.googleapis.com/maps/api/directions/json'
 STREETVIEW_URI = 'http://maps.googleapis.com/maps/api/streetview'
 
 
@@ -159,17 +159,9 @@ def _build_map_response(location):
 
 def get_directions(orig, dest):
     #Takes in an origin & destination and returns the direction via google maps api
-    origin = orig.split()
-    destination = dest.split()
-
-    new_origin = "origin="
-    new_dest = "&destination="
-    for c in origin:
-        new_origin += c + "+"
-        for d in destination:
-            new_dest += d + "+"
-
-    return GMAPS_DIRECTIONS_URI + new_origin + new_dest + "&sensor=false"
+    params = {'origin': orig, 'destination': dest, 'sensor': 'false'}
+    encoded = urlencode(params)
+    return '{}?{}'.format(GMAPS_DIRECTIONS_URI, encoded)
 
 
 def _heading(start, end):
@@ -193,6 +185,7 @@ def _heading(start, end):
 def get_steps(orig, dest):
     # connect to google api json
     decodeme = get_directions(orig, dest)
+    app.logger.info("requesting directions at {}".format(decodeme))
 
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
