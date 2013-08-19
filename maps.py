@@ -176,14 +176,24 @@ def get_steps():
     print "VALUES OF STEPS"
     print steps
 
+    r = twiml.Response()
+    locations = []
 
     #Encode our streetviews
     img = STREETVIEW_URI
     for key, value in DEFAULT_MAPS_PARAMS.items():
         img += key + "=" + value + "&"
 
+
     for key, value in steps.items():
-        print img + "location=" + str(key) + "," + str(value)
+        loc = img + "location=" + str(key) + "," + str(value)
+        print loc
+        directions ="placeholder directions"
+        msg = r.message(body=directions) #body= for html dirs
+        msg.media(loc)
+
+    print str(r)
+    return r
 
 
 def _get_stored_location(phone_number):
