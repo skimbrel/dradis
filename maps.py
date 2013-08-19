@@ -213,6 +213,19 @@ def get_steps(orig, dest):
         msg = r.message(msg=instructions)
         msg.media(streetview_url)
 
+    end = jsonResponse["routes"][0]["legs"][0]["steps"][-1]["end_location"]
+    lag = end["lat"]
+    lng = end["lng"]
+    params = {
+            'location': '{},{}'.format(str(lat), str(lon)),
+            'heading': str(heading),
+        }
+    params.update(DEFAULT_MAPS_PARAMS)
+
+    streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
+    msg = r.message(msg=instructions)
+    msg.media(streetview_url)
+    
     return r
 
 
