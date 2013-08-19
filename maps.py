@@ -193,7 +193,7 @@ def _heading(start, end):
 def get_steps(orig, dest):
     # connect to google api json
     decodeme = get_directions(orig, dest)
-    app.log.info("requesting directions at {}".format(decodeme))
+    app.logger.info("requesting directions at {}".format(decodeme))
 
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
