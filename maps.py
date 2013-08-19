@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import urllib
+from HTMLParser import HTMLParser
 from urllib import urlencode
 
 import flask
@@ -185,11 +186,11 @@ def get_steps(orig, dest):
         img += key + "=" + value + "&"
 
 
-    for key, value, html in steps:
-        loc = img + "location=" + str(key) + "," + str(value) + "," + str(html)
+    for key, value, instructions in steps:
+        stripped_instructions = strip_tags(instructions)
+        loc = img + "location=" + str(key) + "," + str(value) + "," + stripped_instructions
         print loc
-        directions ="placeholder directions"
-        msg = r.message(body=html) #body= for html dirs
+        msg = r.message(body=stripped_instructions)
         msg.media(loc)
 
     print str(r)
@@ -247,8 +248,26 @@ def _apply_movement(location, direction):
     return dict(lat=str(lat), lon=str(lon), zoom=str(zoom))
 
 
+
+# HTMLParser subclass to strip all tags out of text.
+# Taken from http://stackoverflow.com/a/925630
+class MLStripper(HTMLParser):
+    def __init__(self):
+        self.reset()
+        self.fed = []
+    def handle_data(self, d):
+        self.fed.append(d)
+    def get_data(self):
+        return ''.join(self.fed)
+
+
+def strip_tags(html):
+    s = MLStripper()
+    s.feed(html)
+    return s.get_data()
+
+
 if __name__ == '__main__':
     app.debug = True
     #app.run()
     get_steps("Seattle Washington", "San Francisco CA")
-
