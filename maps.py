@@ -110,7 +110,7 @@ def handle_request():
             location = _apply_movement(location, nav_cmd)
         else:
             response = twiml.Response()
-            response.Message(body=u"Please enter a location to start from!")
+            response.Message(msg=u"Please enter a location to start from!")
             return unicode(response)
     elif DESTINATION_RE.match(body):
         # OK, get them some directions.
@@ -118,7 +118,7 @@ def handle_request():
         # XXX use destination with current location place to get directions
         if (not location):
             response = twiml.Response()
-            response.Message(body=u"Please provide a starting location first.")
+            response.Message(msg=u"Please provide a starting location first.")
             return unicode(response)
         else:
             #we have both
