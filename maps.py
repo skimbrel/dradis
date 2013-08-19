@@ -1,21 +1,18 @@
 import logging
 import os
 import re
-from urllib import urlencode
 import urllib
+from urllib import urlencode
 
 import flask
+import json
+import pprint
 import redis
 from flask import request
 from geopy import geocoders
-from twilio import twiml
-import json
-import pprint
-
 
 # XXX replace with twilio-scoped import once we publish the new lib
 import twiml
-
 
 
 app = flask.Flask(__name__)
@@ -77,6 +74,7 @@ class Directions(object):
     WEST = 'west'
     IN = 'in'
     OUT = 'out'
+
 
 KEYWORD_TO_DIRECTION = {
     'north': Directions.NORTH,
