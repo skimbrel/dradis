@@ -289,4 +289,5 @@ def strip_tags(html):
 
 if __name__ == '__main__':
     app.debug = True
+    DEBUG = True
     app.run()
