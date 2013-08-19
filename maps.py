@@ -1,4 +1,6 @@
+import json
 import logging
+import pprint
 import os
 import re
 import urllib
@@ -6,8 +8,6 @@ from HTMLParser import HTMLParser
 from urllib import urlencode
 
 import flask
-import json
-import pprint
 import redis
 from flask import request
 from geopy import geocoders
@@ -15,6 +15,8 @@ from geopy import geocoders
 # XXX replace with twilio-scoped import once we publish the new lib
 import twiml
 
+
+DEBUG = False
 
 app = flask.Flask(__name__)
 streamhandler = logging.StreamHandler()
@@ -156,41 +158,40 @@ def get_steps(orig, dest):
 
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
-    pprint.pprint(jsonResponse)
+    if DEBUG:
+        pprint.pprint(jsonResponse)
 
     steps = []
-    print "------------------------------------------------------------------------------------------------"
+    if DEBUG:
+        print "------------------------------------------------------------------------------------------------"
 
-    #print jsonResponse["routes"][0]["legs"]
-    pprint.pprint (jsonResponse["routes"][0]["legs"][0]["steps"][0])
+        pprint.pprint (jsonResponse["routes"][0]["legs"][0]["steps"][0])
     for item in jsonResponse["routes"][0]["legs"][0]["steps"]:
-        print "start: {}".format(item["start_location"])
-        print "end: {}".format(item["end_location"])
+        if DEBUG:
+            print "start: {}".format(item["start_location"])
+            print "end: {}".format(item["end_location"])
 
         steps.append((item["start_location"]["lat"], item["start_location"]["lng"], item["html_instructions"]))
+        if DEBUG:
+            print "+++++++++++++++++++++++"
 
-        #print item["html_directions"]
-        #pprint.pprint(item)
-        print "+++++++++++++++++++++++"
-
-
-    print "VALUES OF STEPS"
-    print steps
+    if DEBUG:
+        print "VALUES OF STEPS"
+        print steps
 
     r = twiml.Response()
-    locations = []
 
     #Encode our streetviews
     img = STREETVIEW_URI
     for key, value in DEFAULT_MAPS_PARAMS.items():
         img += key + "=" + value + "&"
 
-
     for key, value, instructions in steps:
         stripped_instructions = strip_tags(instructions)
         loc = img + "location=" + str(key) + "," + str(value) + "," + stripped_instructions
-        print loc
         msg = r.message(body=stripped_instructions)
+        if DEBUG:
+            print loc
         msg.media(loc)
 
     print str(r)
@@ -270,4 +271,5 @@ def strip_tags(html):
 if __name__ == '__main__':
     app.debug = True
     #app.run()
+    #DEBUG=True
     get_steps("Seattle Washington", "San Francisco CA")
