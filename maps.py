@@ -3,6 +3,7 @@ import redis
 from flask import request
 from geopy import geocoders
 from urllib import urlencode
+from twilio import twiml
 
 
 app = flask.Flask(__name__)
@@ -12,6 +13,7 @@ redis_client = redis.from_url('redis://localhost:6379')
 
 STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
+DEFAULT_ZOOM = 15
 
 
 @app.route('/', methods=['POST'])
@@ -19,22 +21,32 @@ def get_map():
     phone_number = request.form['From']
     body = request.form['Body']
 
-    place, (lat, lon) = geocoder.geocode(body)
-    params = {
-        'center': '{},{}'.format(str(lat), str(lon)),
-        'zoom': 10,
-    }
-    params.update(DEFAULT_MAPS_PARAMS)
-    response = u'''
-<Response>
-    <Message>
-        <Media>
-            {}?{}
-        </Media>
-    </Message>
-</Response>'''.format(STATIC_MAPS_URI, urlencode(params))
+    location = _get_stored_location(phone_number)
 
-    return response
+    if not location:
+        place, (lat, lon) = geocoder.geocode(body)
+        location = dict(lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
+
+    response = _build_map_response(location)
+
+    return unicode(response)
+
+
+def _build_map_response(location):
+    map_params = {
+        'center': '{},{}'.format(str(location['lat']), str(location['lon'])),
+        'zoom': location['zoom'],
+    }
+    map_params.update(DEFAULT_MAPS_PARAMS)
+    map_tile_url = '{}?{}'.format(
+        STATIC_MAPS_URI,
+        urlencode(map_params),
+    )
+    r = twiml.Response()
+    msg = r.message()
+    msg.media(map_tile_url)
+
+    return r
 
 
 def _get_stored_location(phone_number):
