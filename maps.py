@@ -1,15 +1,17 @@
+import os
+from urllib import urlencode
+
 import flask
 import redis
 from flask import request
 from geopy import geocoders
-from urllib import urlencode
 from twilio import twiml
 
 
 app = flask.Flask(__name__)
 
 geocoder = geocoders.GoogleV3()
-redis_client = redis.from_url('redis://localhost:6379')
+redis_client = redis.from_url(os.getenv('REDIS_URL'))
 
 STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
@@ -39,6 +41,7 @@ KEYWORD_TO_DIRECTION = {
     'in': Directions.IN,
     'out': Directions.OUT,
 }
+
 
 @app.route('/', methods=['POST'])
 def get_map():
