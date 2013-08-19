@@ -23,7 +23,7 @@ streamhandler = logging.StreamHandler()
 app.logger.addHandler(streamhandler)
 
 geocoder = geocoders.GoogleV3()
-redis_client = redis.from_url(os.getenv('REDIS_URL'))
+redis_client = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
 
 STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
