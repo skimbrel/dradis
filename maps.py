@@ -190,11 +190,14 @@ def get_steps(orig, dest):
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
     r = twiml.Response()
-    for item in jsonResponse["routes"][0]["legs"][0]["steps"]:
+    for idx, item in enumerate(jsonResponse["routes"][0]["legs"][0]["steps"]):
         lat = item["start_location"]["lat"]
         lon = item["start_location"]["lng"]
         heading = _heading(item["start_location"], item["end_location"])
-        instructions = strip_tags(item["html_instructions"])
+        instructions = "{}. {}".format(
+            idx + 1,
+            strip_tags(item["html_instructions"]),
+        )
 
         params = {
             'location': '{},{}'.format(str(lat), str(lon)),
@@ -207,18 +210,17 @@ def get_steps(orig, dest):
         msg.media(streetview_url)
 
     end = jsonResponse["routes"][0]["legs"][0]["steps"][-1]["end_location"]
-    lag = end["lat"]
-    lng = end["lng"]
     params = {
-            'location': '{},{}'.format(str(lat), str(lon)),
-            'heading': str(heading),
-        }
+        'location': '{},{}'.format(str(end["lat"]), str(end["lng"])),
+        'heading': str(heading),
+    }
     params.update(DEFAULT_MAPS_PARAMS)
 
     streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
-    msg = r.message(msg=instructions)
+    arrival_msg = "Hopefully you ended up somewhere looking sort of like this."
+    msg = r.message(msg=arrival_msg)
     msg.media(streetview_url)
-    
+
     return r
 
 
