@@ -292,6 +292,7 @@ def _parse_twiliocon_presets(body):
         # require an *exact* match against one of our commands.
         return KEYWORD_TO_TCON[body.lower()]
 
+     print "No keywords matched from body: {}".format(body)
      return None
 
 
