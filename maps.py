@@ -147,7 +147,7 @@ def handle_request():
     nav_cmd = _parse_navigation(body)
 
     if preset is not None:
-        print "preset: {} ".format(preset)
+        _apply_tcon_movement(preset)
 
     elif nav_cmd is not None:
         if location:
@@ -307,6 +307,33 @@ def _parse_navigation(body):
         return KEYWORD_TO_DIRECTION[body.lower()]
 
     return None
+
+def _apply_tcon_movement(command):
+
+    r = twiml.Response()
+
+    if command is TConDirections.HOTEL:
+        hotel_msg = "Nearby hotel options (with address provided for easy copy paste)\n\n" \
+                   "Intercontinental San Francisco - 888 Howard Street, SF CA\n"
+        msg = r.message(msg=hotel_msg)
+    elif command is TConDirections.FOOD:
+        food_msg = "Nearby food options (with address provided for easy copy paste)\n\n" \
+                   "Source - Vegetarian/Vegan - 11 Division St, SF CA\n" \
+                   "SO - Asian Fusion - 1010 Bryant St, SF CA\n" \
+                   "Henry's Hunan - Chinese - 1016 Bryant St, SF CA\n" \
+                   "Grand Pu Bah Thai - 88 Division St, SF CA\n" \
+                   "Saffron 685 - 685 Townsend St, SF CA"
+        msg = r.message(msg=food_msg)
+    elif command is TConDirections.TCON:
+        tcon_msg = "TCon rooms TBD:\n\n"
+        msg = r.message(msg=tcon_msg)
+    else:
+        raise ValueError("Unknown Twiliocon command {}".format(command))
+
+    return r
+
+
+
 
 
 def _apply_movement(location, direction):
