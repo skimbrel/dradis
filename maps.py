@@ -147,7 +147,7 @@ def handle_request():
     nav_cmd = _parse_navigation(body)
 
     if preset is not None:
-        print "preset: ".format(preset)
+        print "preset: {} ".format(preset)
 
     elif nav_cmd is not None:
         if location:
