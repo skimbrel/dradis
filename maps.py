@@ -156,7 +156,7 @@ def handle_request():
 
     if preset is not None:
         response = _get_tcon_response(preset)
-        return response
+        return unicode(response)
 
     elif nav_cmd is not None:
         if location:
