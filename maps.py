@@ -123,6 +123,15 @@ DIRECTIONS_RE = re.compile('^{}$'.format(DIRECTIONS_OR), re.IGNORECASE)
 
 DESTINATION_RE = re.compile('^to:', re.IGNORECASE)
 
+HELP_STRING = u"""Send a location ("645 Harrison Street, San Francisco, CA") to get a map image in reply.
+
+Navigate the map with directions, e.g. "north" or "out".
+
+To get street directions: "To: 635 8th Street, San Francisco, CA"
+"""
+
+HELP_RE = re.compile('^help|usage', re.IGNORECASE)
+
 
 @app.route('/', methods=['POST'])
 def handle_request():
@@ -159,15 +168,29 @@ def handle_request():
         else:
             #we have both
             return unicode(get_steps(location["place"], destination))
+    elif HELP_RE.match(body):
+        return _usage()
 
     else:
         # Just show the location requested.
-        place, (lat, lon) = geocoder.geocode(body)
+        try:
+            place, (lat, lon) = geocoder.geocode(body)
+        except ValueError:
+            response = twiml.Response()
+            response.Message(
+                msg=u"Sorry, we couldn't find a unique match for that location."
+            )
         location = dict(place=place, lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
     response = _build_map_response(location)
     _store_location(phone_number, location)
 
+    return unicode(response)
+
+
+def _usage():
+    response = twiml.Response()
+    response.Message(msg=HELP_STRING)
     return unicode(response)
 
 
@@ -221,11 +244,14 @@ def get_steps(orig, dest):
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
     r = twiml.Response()
-    for item in jsonResponse["routes"][0]["legs"][0]["steps"]:
+    for idx, item in enumerate(jsonResponse["routes"][0]["legs"][0]["steps"]):
         lat = item["start_location"]["lat"]
         lon = item["start_location"]["lng"]
         heading = _heading(item["start_location"], item["end_location"])
-        instructions = strip_tags(item["html_instructions"])
+        instructions = "{}. {}".format(
+            idx + 1,
+            strip_tags(item["html_instructions"]),
+        )
 
         params = {
             'location': '{},{}'.format(str(lat), str(lon)),
@@ -238,18 +264,17 @@ def get_steps(orig, dest):
         msg.media(streetview_url)
 
     end = jsonResponse["routes"][0]["legs"][0]["steps"][-1]["end_location"]
-    lat = end["lat"]
-    lon = end["lng"]
     params = {
-            'location': '{},{}'.format(str(lat), str(lon)),
-            'heading': str(heading),
-        }
+        'location': '{},{}'.format(str(end["lat"]), str(end["lng"])),
+        'heading': str(heading),
+    }
     params.update(DEFAULT_MAPS_PARAMS)
 
     streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
-    msg = r.message(msg=instructions)
+    arrival_msg = "Hopefully you ended up somewhere looking sort of like this."
+    msg = r.message(msg=arrival_msg)
     msg.media(streetview_url)
-    
+
     return r
 
 
