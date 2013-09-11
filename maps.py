@@ -344,10 +344,10 @@ def _get_tcon_response(command):
         msg = r.message(msg=hotel_msg)
     elif command is TConDirections.FOOD:
         food_msg = "Nearby food options (with address provided for easy copy paste)\n\n" \
-                   "Source - Vegetarian/Vegan - 11 Division St, SF CA\n" \
-                   "SO - Asian Fusion - 1010 Bryant St, SF CA\n" \
-                   "Henry's Hunan - Chinese - 1016 Bryant St, SF CA\n" \
-                   "Grand Pu Bah Thai - 88 Division St, SF CA\n" \
+                   "Source - Vegetarian/Vegan - 11 Division St, SF CA\n\n" \
+                   "SO - Asian Fusion - 1010 Bryant St, SF CA\n\n" \
+                   "Henry's Hunan - Chinese - 1016 Bryant St, SF CA\n\n" \
+                   "Grand Pu Bah Thai - 88 Division St, SF CA\n\n" \
                    "Saffron 685 - 685 Townsend St, SF CA"
         msg = r.message(msg=food_msg)
     elif command is TConDirections.TCON:
