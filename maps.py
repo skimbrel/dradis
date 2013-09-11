@@ -288,6 +288,7 @@ def _store_location(phone_number, location_dict):
 
 def _parse_twiliocon_presets(body):
      if TCONDIRS_RE.match(body):
+        print "body.lower: {}".format(body.lower())
         # Since a location string might contain a directional word,
         # require an *exact* match against one of our commands.
         return KEYWORD_TO_TCON[body.lower()]
