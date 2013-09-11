@@ -13,11 +13,14 @@ from urllib import urlencode
 
 import flask
 import redis
+from rq import Queue
 from flask import request
 from geopy import geocoders
 
 # XXX replace with twilio-scoped import once we publish the new lib
 import twiml
+from client import send_directions_page
+from worker import conn
 
 
 DEBUG = False
@@ -28,6 +31,8 @@ app.logger.addHandler(streamhandler)
 
 geocoder = geocoders.GoogleV3()
 redis_client = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
+
+worker_queue = Queue(connection=conn)
 
 STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
@@ -132,6 +137,9 @@ To get street directions: "To: 635 8th Street, San Francisco, CA"
 
 HELP_RE = re.compile('^help|usage', re.IGNORECASE)
 
+PAGE_SIZE = 3
+STEPS_KEY_TMPL = "steps:{phone_number}"
+
 
 @app.route('/', methods=['POST'])
 def handle_request():
@@ -161,8 +169,11 @@ def handle_request():
         if (not location):
             return _error(u"Please provide a starting location first.")
         else:
-            #we have both
-            return unicode(get_steps(location["place"], destination))
+            # XXX store steps and enqueue first page
+            steps = get_steps(location["place"], destination)
+            _store_steps(phone_number, steps)
+            _send_next_page(phone_number, PAGE_SIZE)
+            return unicode(twiml.Response())
     elif HELP_RE.match(body):
         return _usage()
 
@@ -241,7 +252,7 @@ def get_steps(orig, dest):
 
     googleResponse = urllib.urlopen(decodeme)
     jsonResponse = json.loads(googleResponse.read())
-    r = twiml.Response()
+    steps = []
     for idx, item in enumerate(jsonResponse["routes"][0]["legs"][0]["steps"]):
         lat = item["start_location"]["lat"]
         lon = item["start_location"]["lng"]
@@ -258,8 +269,7 @@ def get_steps(orig, dest):
         params.update(DEFAULT_MAPS_PARAMS)
 
         streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
-        msg = r.message(msg=instructions)
-        msg.media(streetview_url)
+        steps.append({'text': instructions, 'image': streetview_url})
 
     end = jsonResponse["routes"][0]["legs"][0]["steps"][-1]["end_location"]
     params = {
@@ -270,10 +280,9 @@ def get_steps(orig, dest):
 
     streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
     arrival_msg = "Hopefully you ended up somewhere looking sort of like this."
-    msg = r.message(msg=arrival_msg)
-    msg.media(streetview_url)
+    steps.append({'text': arrival_msg, 'image': streetview_url})
 
-    return r
+    return steps
 
 
 def _get_stored_location(phone_number):
@@ -285,6 +294,20 @@ def _store_location(phone_number, location_dict):
         phone_number,
         location_dict,
     )
+
+
+def _store_steps(phone_number, steps):
+    encoded_steps = [json.dumps(step) for step in steps]
+    key = STEPS_KEY_TMPL.format(phone_number=phone_number)
+
+    # Nuke anything that was there before.
+    redis_client.delete(key)
+
+    redis_client.rpush(key, *encoded_steps)
+
+
+def _send_next_page(phone_number, page_size):
+    worker_queue.send(send_directions_page, phone_number, page_size)
 
 
 def _parse_twiliocon_presets(body):
