@@ -101,6 +101,15 @@ DIRECTIONS_RE = re.compile('^{}$'.format(DIRECTIONS_OR), re.IGNORECASE)
 
 DESTINATION_RE = re.compile('^to:', re.IGNORECASE)
 
+HELP_STRING = u"""Send a location ("645 Harrison Street, San Francisco, CA") to get a map image in reply.
+
+Navigate the map with directions, e.g. "north" or "out".
+
+To get street directions: "To: 635 8th Street, San Francisco, CA"
+"""
+
+HELP_RE = re.compile('^help|usage', re.IGNORECASE)
+
 
 @app.route('/', methods=['POST'])
 def handle_request():
@@ -128,15 +137,29 @@ def handle_request():
         else:
             #we have both
             return unicode(get_steps(location["place"], destination))
+    elif HELP_RE.match(body):
+        return _usage()
 
     else:
         # Just show the location requested.
-        place, (lat, lon) = geocoder.geocode(body)
+        try:
+            place, (lat, lon) = geocoder.geocode(body)
+        except ValueError:
+            response = twiml.Response()
+            response.Message(
+                msg=u"Sorry, we couldn't find a unique match for that location."
+            )
         location = dict(place=place, lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
     response = _build_map_response(location)
     _store_location(phone_number, location)
 
+    return unicode(response)
+
+
+def _usage():
+    response = twiml.Response()
+    response.Message(msg=HELP_STRING)
     return unicode(response)
 
 
