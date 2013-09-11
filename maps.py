@@ -147,7 +147,7 @@ def handle_request():
     nav_cmd = _parse_navigation(body)
 
     if preset is not None:
-        _apply_tcon_movement(preset)
+        location = _apply_tcon_movement(preset)
 
     elif nav_cmd is not None:
         if location:
