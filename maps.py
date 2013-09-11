@@ -95,6 +95,7 @@ KEYWORD_TO_TCON = {
 TCONDIRS_OR = '|'.join(KEYWORD_TO_TCON.keys())
 TCONDIRS_RE = re.compile('^{}$'.format(TCONDIRS_OR), re.IGNORECASE)
 
+
 class Directions(object):
     NORTH = 'north'
     SOUTH = 'south'
@@ -152,17 +153,13 @@ def handle_request():
         if location:
             location = _apply_movement(location, nav_cmd)
         else:
-            response = twiml.Response()
-            response.Message(msg=u"Please enter a location to start from!")
-            return unicode(response)
+            return _error(u"Please enter a location to start from!")
     elif DESTINATION_RE.match(body):
         # OK, get them some directions.
         destination = re.sub(DESTINATION_RE, '', body)
         # XXX use destination with current location place to get directions
         if (not location):
-            response = twiml.Response()
-            response.Message(msg=u"Please provide a starting location first.")
-            return unicode(response)
+            return _error(u"Please provide a starting location first.")
         else:
             #we have both
             return unicode(get_steps(location["place"], destination))
@@ -174,10 +171,7 @@ def handle_request():
         try:
             place, (lat, lon) = geocoder.geocode(body)
         except ValueError:
-            response = twiml.Response()
-            response.Message(
-                msg=u"Sorry, we couldn't find a unique match for that location."
-            )
+            return _error(u"Sorry, we couldn't find a unique match for that location.")
         location = dict(place=place, lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
     response = _build_map_response(location)
@@ -186,9 +180,15 @@ def handle_request():
     return unicode(response)
 
 
+def _error(message):
+    response = twiml.Response()
+    response.message(msg=message)
+    return unicode(response)
+
+
 def _usage():
     response = twiml.Response()
-    response.Message(msg=HELP_STRING)
+    response.message(msg=HELP_STRING)
     return unicode(response)
 
 
@@ -286,15 +286,18 @@ def _store_location(phone_number, location_dict):
         location_dict,
     )
 
+
 def _parse_twiliocon_presets(body):
-     if TCONDIRS_RE.match(body):
+    if TCONDIRS_RE.match(body):
         print "body.lower: {}".format(body.lower())
+
+
         # Since a location string might contain a directional word,
         # require an *exact* match against one of our commands.
         return KEYWORD_TO_TCON[body.lower()]
 
-     print "No keywords matched from body: {}".format(body)
-     return None
+    print "No keywords matched from body: {}".format(body)
+    return None
 
 
 def _parse_navigation(body):
