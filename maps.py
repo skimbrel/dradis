@@ -94,7 +94,6 @@ KEYWORD_TO_TCON = {
 
 TCONDIRS_OR = '|'.join(KEYWORD_TO_TCON.keys())
 TCONDIRS_RE = re.compile('^{}$'.format(TCONDIRS_OR), re.IGNORECASE)
-TCONDIRS_RE = re.compile('^to:', re.IGNORECASE)
 
 class Directions(object):
     NORTH = 'north'
