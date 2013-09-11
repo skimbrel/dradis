@@ -124,7 +124,7 @@ def handle_request():
             location = _apply_movement(location, nav_cmd)
         else:
             response = twiml.Response()
-            response.Message(msg=u"Please enter a location to start from!")
+            response.message(msg=u"Please enter a location to start from!")
             return unicode(response)
     elif DESTINATION_RE.match(body):
         # OK, get them some directions.
@@ -132,7 +132,7 @@ def handle_request():
         # XXX use destination with current location place to get directions
         if (not location):
             response = twiml.Response()
-            response.Message(msg=u"Please provide a starting location first.")
+            response.message(msg=u"Please provide a starting location first.")
             return unicode(response)
         else:
             #we have both
@@ -146,7 +146,7 @@ def handle_request():
             place, (lat, lon) = geocoder.geocode(body)
         except ValueError:
             response = twiml.Response()
-            response.Message(
+            response.message(
                 msg=u"Sorry, we couldn't find a unique match for that location."
             )
         location = dict(place=place, lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
@@ -159,7 +159,7 @@ def handle_request():
 
 def _usage():
     response = twiml.Response()
-    response.Message(msg=HELP_STRING)
+    response.message(msg=HELP_STRING)
     return unicode(response)
 
 
