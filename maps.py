@@ -174,10 +174,13 @@ def handle_request():
             return _error(u"Sorry, we couldn't find a unique match for that location.")
         location = dict(place=place, lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
-    response = _build_map_response(location)
-    _store_location(phone_number, location)
+    if preset is not None:
+        response = _build_map_response(location)
+        _store_location(phone_number, location)
 
-    return unicode(response)
+        return unicode(response)
+    else:
+        return unicode(location)
 
 
 def _error(message):
