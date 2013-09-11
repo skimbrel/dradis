@@ -74,6 +74,28 @@ GMAPS_DIRECTIONS_URI = 'http://maps.googleapis.com/maps/api/directions/json'
 STREETVIEW_URI = 'http://maps.googleapis.com/maps/api/streetview'
 
 
+class TConDirections(object):
+    FOOD = 'food'
+    HOTEL = 'hotel'
+    TCON = 'twiliocon'
+    #todo the TCon directions
+
+
+KEYWORD_TO_TCON = {
+    'food': TConDirections.FOOD,
+    'eats': TConDirections.FOOD,
+    'hotel': TConDirections.HOTEL,
+    'sleep': TConDirections.HOTEL,
+    'rest': TConDirections.HOTEL,
+    'twilio': TConDirections.TCON,
+    'twiliocon': TConDirections.TCON,
+    'tcon': TConDirections.TCON,
+}
+
+TCONDIRS_OR = '|'.join(KEYWORD_TO_TCON.keys())
+TCONDIRS_RE = re.compile('^{}$'.format(TCONDIRS_OR), re.IGNORECASE)
+TCONDIRS_RE = re.compile('^to:', re.IGNORECASE)
+
 class Directions(object):
     NORTH = 'north'
     SOUTH = 'south'
@@ -108,6 +130,15 @@ def handle_request():
     body = request.form['Body']
 
     location = _get_stored_location(phone_number)
+
+    # Handle all of our special case logic for TwilioCon
+    # If you're grabbing the source, you can either change those
+    # or remove them entirely
+    preset = _parse_twiliocon_presets(body)
+
+    if preset is not None:
+        print "preset: ".format(preset)
+
     nav_cmd = _parse_navigation(body)
 
     if nav_cmd is not None:
@@ -231,6 +262,14 @@ def _store_location(phone_number, location_dict):
         phone_number,
         location_dict,
     )
+
+def _parse_twiliocon_presets(body):
+     if TCONDIRS_RE.match(body):
+        # Since a location string might contain a directional word,
+        # require an *exact* match against one of our commands.
+        return KEYWORD_TO_TCON[body.lower()]
+
+     return None
 
 
 def _parse_navigation(body):
