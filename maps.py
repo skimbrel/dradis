@@ -147,7 +147,8 @@ def handle_request():
     nav_cmd = _parse_navigation(body)
 
     if preset is not None:
-        location = _apply_tcon_movement(preset)
+        response = _get_tcon_response(preset)
+        return response
 
     elif nav_cmd is not None:
         if location:
@@ -174,13 +175,12 @@ def handle_request():
             return _error(u"Sorry, we couldn't find a unique match for that location.")
         location = dict(place=place, lat=lat, lon=lon, zoom=DEFAULT_ZOOM)
 
-    if preset is not None:
-        response = _build_map_response(location)
-        _store_location(phone_number, location)
 
-        return unicode(response)
-    else:
-        return unicode(location)
+    response = _build_map_response(location)
+    _store_location(phone_number, location)
+
+    return unicode(response)
+
 
 
 def _error(message):
@@ -311,7 +311,7 @@ def _parse_navigation(body):
 
     return None
 
-def _apply_tcon_movement(command):
+def _get_tcon_response(command):
 
     r = twiml.Response()
 
