@@ -144,13 +144,12 @@ def handle_request():
     # If you're grabbing the source, you can either change those
     # or remove them entirely
     preset = _parse_twiliocon_presets(body)
+    nav_cmd = _parse_navigation(body)
 
     if preset is not None:
         print "preset: ".format(preset)
 
-    nav_cmd = _parse_navigation(body)
-
-    if nav_cmd is not None:
+    elif nav_cmd is not None:
         if location:
             location = _apply_movement(location, nav_cmd)
         else:
