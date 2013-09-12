@@ -382,8 +382,8 @@ def _apply_movement(location, direction):
         lat += pan_distance
 
     elif direction is Directions.SOUTH:
-        pan_distance = LAT_PA
-
+        pan_distance = LON_PAN_DISTANCE_MAP[location['zoom']]
+        lon += pan_distance
 
     elif direction is Directions.EAST:
         pan_distance = LON_PAN_DISTANCE_MAP[location['zoom']]
