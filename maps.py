@@ -157,6 +157,10 @@ def handle_request():
     if preset is not None:
         response = _get_tcon_response(preset)
         return unicode(response)
+    elif body.lower() == 'next':
+        _send_next_page(phone_number, PAGE_SIZE)
+        response = twiml.Response()
+        return unicode(response)
 
     elif nav_cmd is not None:
         if location:

@@ -42,7 +42,9 @@ def send_directions_page(recipient, page_size):
     redis_client = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
 
     steps = redis_client.lrange(recipient, page_size)
-    for step in steps:
+    redis_client.lrem(recipient, page_size)
+    head, tail = steps[:-1], steps[-1]
+    for step in head:
         decoded = json.loads(step)
         send_message(
             recipient,
@@ -51,4 +53,15 @@ def send_directions_page(recipient, page_size):
             media_urls=[decoded['image']],
         )
 
-    redis_client.lrem(recipient, page_size)
+    decoded = json.loads(tail)
+    if redis_client.llen(recipient) > 0:
+        body = '{} (Reply "next" for next page)'.format(decoded['text'])
+    else:
+        body = decoded['text']
+
+    send_message(
+        recipient,
+        TWILIO_SHORTCODE,
+        body=body,
+        media_urls=[decoded['image']],
+    )
