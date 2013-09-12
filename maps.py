@@ -348,19 +348,19 @@ def _get_tcon_response(command):
         r.message(msg =food_msg)
 
         rest1 =   r.message(msg="Source - Vegetarian/Vegan - 11 Division St, SF CA\n\n")
-        rest1.media("http://upload.wikimedia.org/wikipedia/en/a/a5/Chickenlittlemcgiposter.jpg")
+        rest1.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at24818PM_zps98b85249.png")
 
         rest2 =   r.message("SO - Asian Fusion - 1010 Bryant St, SF CA\n\n")
-        rest2.media("http://upload.wikimedia.org/wikipedia/en/thumb/8/8d/Chickenlittlesoundtrack.jpg/220px-Chickenlittlesoundtrack.jpg")
+        rest2.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at25116PM_zps9420b210.png")
 
         rest3 =   r.message("Henry's Hunan - Chinese - 1016 Bryant St, SF CA\n\n")
-        rest3.media("http://upload.wikimedia.org/wikipedia/en/thumb/0/04/Chicken_Little_-_Ace_in_Action_video_game_cover.png/200px-Chicken_Little_-_Ace_in_Action_video_game_cover.png")
+        rest3.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at25202PM_zps50068145.png")
 
         rest4 =   r.message("Grand Pu Bah Thai - 88 Division St, SF CA\n\n")
-        rest4.media("https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash1/275708_634418086_720365285_q.jpg")
+        rest4.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at25302PM_zps76175dfe.png")
 
         rest5 =   r.message("Saffron 685 - 685 Townsend St, SF CA\n\n")
-        rest5.media("https://sphotos-b-pao.xx.fbcdn.net/hphotos-ash3/1176296_10151704920813087_2132737691_n.jpg")
+        rest5.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at25324PM_zps7985ec94.png")
         r.message(msg=food_msg)
     elif command is TConDirections.TCON:
         tcon_msg = "TCon rooms TBD:\n\n"
