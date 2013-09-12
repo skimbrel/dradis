@@ -336,12 +336,12 @@ def _parse_navigation(body):
 
 def _get_tcon_response(command):
 
-    r = twiml.Message()
+    r = twiml.Response()
     if command is TConDirections.HOTEL:
         hotel_msg = "Nearby hotel options (with address provided for easy copy paste)\n\n" \
                    "Intercontinental San Francisco - 888 Howard Street, SF CA\n"
-        return r.body(msg=hotel_msg)
-        #msg = r.message(msg=hotel_msg)
+        return r.message(msg=hotel_msg)
+
     elif command is TConDirections.FOOD:
         food_msg = "Nearby food options (with address provided for easy copy paste)\n\n\n" \
                    "Source - Vegetarian/Vegan - 11 Division St, SF CA\n\n\n" \
@@ -349,16 +349,14 @@ def _get_tcon_response(command):
                    "Henry's Hunan - Chinese - 1016 Bryant St, SF CA\n\n\n" \
                    "Grand Pu Bah Thai - 88 Division St, SF CA\n\n\n" \
                    "Saffron 685 - 685 Townsend St, SF CA"
-        return r.body(msg=food_msg)
-        #msg = r.message(msg=food_msg)
+        return r.message(msg=food_msg)
     elif command is TConDirections.TCON:
         tcon_msg = "TCon rooms TBD:\n\n"
-        return r.body(msg=tcon_msg)
-        #msg = r.message(msg=tcon_msg)
+        return r.message(msg=tcon_msg)
+
     else:
         raise ValueError("Unknown Twiliocon command {}".format(command))
 
-    #return r
 
 
 
