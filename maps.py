@@ -344,12 +344,23 @@ def _get_tcon_response(command):
 
 
     elif command is TConDirections.FOOD:
-        food_msg = "Nearby food options (with address provided for easy copy paste)\n\n\n" \
-                   "Source - Vegetarian/Vegan - 11 Division St, SF CA\n\n\n" \
-                   "SO - Asian Fusion - 1010 Bryant St, SF CA\n\n\n" \
-                   "Henry's Hunan - Chinese - 1016 Bryant St, SF CA\n\n\n" \
-                   "Grand Pu Bah Thai - 88 Division St, SF CA\n\n\n" \
-                   "Saffron 685 - 685 Townsend St, SF CA"
+        food_msg = "Nearby food options (with address provided for easy copy paste)\n\n"
+        r.message(msg =food_msg)
+
+        rest1 =   r.message(msg="Source - Vegetarian/Vegan - 11 Division St, SF CA\n\n")
+        rest1.media("http://upload.wikimedia.org/wikipedia/en/a/a5/Chickenlittlemcgiposter.jpg")
+
+        rest2 =   r.message("SO - Asian Fusion - 1010 Bryant St, SF CA\n\n")
+        rest2.media("http://upload.wikimedia.org/wikipedia/en/thumb/8/8d/Chickenlittlesoundtrack.jpg/220px-Chickenlittlesoundtrack.jpg")
+
+        rest3 =   r.message("Henry's Hunan - Chinese - 1016 Bryant St, SF CA\n\n")
+        rest3.media("http://upload.wikimedia.org/wikipedia/en/thumb/0/04/Chicken_Little_-_Ace_in_Action_video_game_cover.png/200px-Chicken_Little_-_Ace_in_Action_video_game_cover.png")
+
+        rest4 =   r.message("Grand Pu Bah Thai - 88 Division St, SF CA\n\n")
+        rest4.media("https://fbcdn-profile-a.akamaihd.net/hprofile-ak-ash1/275708_634418086_720365285_q.jpg")
+
+        rest5 =   r.message("Saffron 685 - 685 Townsend St, SF CA\n\n")
+        rest5.media("https://sphotos-b-pao.xx.fbcdn.net/hphotos-ash3/1176296_10151704920813087_2132737691_n.jpg")
         r.message(msg=food_msg)
     elif command is TConDirections.TCON:
         tcon_msg = "TCon rooms TBD:\n\n"
@@ -371,8 +382,8 @@ def _apply_movement(location, direction):
         lat += pan_distance
 
     elif direction is Directions.SOUTH:
-        pan_distance = LAT_PAN_DISTANCE_MAP[location['zoom']]
-        lat -= pan_distance
+        pan_distance = LAT_PA
+
 
     elif direction is Directions.EAST:
         pan_distance = LON_PAN_DISTANCE_MAP[location['zoom']]
