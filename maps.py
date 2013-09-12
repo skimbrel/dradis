@@ -314,7 +314,7 @@ def _store_steps(phone_number, steps):
 
 
 def _send_next_page(phone_number, page_size):
-    worker_queue.send(send_directions_page, phone_number, page_size)
+    worker_queue.enqueue(send_directions_page, phone_number, page_size)
 
 
 def _parse_twiliocon_presets(body):
