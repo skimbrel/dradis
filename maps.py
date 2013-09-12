@@ -264,7 +264,7 @@ def get_steps(orig, dest):
         lat = item["start_location"]["lat"]
         lon = item["start_location"]["lng"]
         heading = _heading(item["start_location"], item["end_location"])
-        instructions = "{}. {}".format(
+        instructions = u"{}. {}".format(
             idx + 1,
             strip_tags(item["html_instructions"]),
         )
@@ -286,7 +286,7 @@ def get_steps(orig, dest):
     params.update(DEFAULT_MAPS_PARAMS)
 
     streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
-    arrival_msg = "Hopefully you ended up somewhere looking sort of like this."
+    arrival_msg = u"Hopefully you ended up somewhere looking sort of like this."
     steps.append({'text': arrival_msg, 'image': streetview_url})
 
     return steps
