@@ -32,7 +32,7 @@ def send_message(to, from_, body=None, media_urls=None):
     res = requests.post(
         MESSAGES_URL.format(acct_sid=sender_account),
         auth=(account_sid, auth_token),
-        params=params,
+        data=params,
     )
 
     if res.status_code != 201:
