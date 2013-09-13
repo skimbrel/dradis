@@ -41,7 +41,7 @@ def send_message(to, from_, body=None, media_urls=None):
 def send_directions_page(recipient, page_size):
     redis_client = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
 
-    steps = redis_client.lrange(recipient, page_size)
+    steps = redis_client.lrange(recipient, 0, page_size - 1)
     redis_client.lrem(recipient, page_size)
     head, tail = steps[:-1], steps[-1]
     for step in head:
