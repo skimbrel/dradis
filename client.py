@@ -36,7 +36,11 @@ def send_message(to, from_, body=None, media_urls=None):
     )
 
     if res.status_code != 201:
-        raise ValueError("Error sending message: {}".format(res.content))
+        raise ValueError("Error sending message: {} (request: {}, {})".format(
+            res.content,
+            res.url,
+            params,
+        ))
 
 
 def send_directions_page(recipient, page_size):
