@@ -17,7 +17,7 @@ from rq import Queue
 from flask import request
 from geopy import geocoders
 
-# XXX replace with twilio-scoped import once we publish the new lib
+#TODO: XXX replace with twilio-scoped import once we publish the new lib
 import twiml
 from client import send_directions_page
 from worker import conn
