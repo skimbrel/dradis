@@ -48,7 +48,8 @@ def send_directions_page(recipient, page_size):
     key = STEPS_KEY_TMPL.format(phone_number=recipient)
 
     steps = redis_client.lrange(key, 0, page_size - 1)
-    redis_client.lrem(key, page_size)
+    length = redis_client.llen(key)
+    redis_client.ltrim(key, page_size, length - 1)
     head, tail = steps[:-1], steps[-1]
     for step in head:
         decoded = json.loads(step)
