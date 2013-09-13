@@ -338,9 +338,25 @@ def _get_tcon_response(command):
 
     r = twiml.Response()
     if command is TConDirections.HOTEL:
-        hotel_msg = "Nearby hotel options (with address provided for easy copy paste)\n\n" \
-                   "Intercontinental San Francisco - 888 Howard Street, SF CA\n"
+        hotel_msg = "Nearby hotel options (with address provided for easy copy paste)\n\n"
         r.message(msg=hotel_msg)
+
+        hotel1 = r.message(msg="Vagabond Inn - 385 9th St, SF CA\n\n")
+        hotel1.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at35533PM_zpsba48953b.png")
+
+        hotel2 = r.message(msg="Civic Center Motor Inn - 364 9th St, SF CA\n\n")
+        hotel2.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at35624PM_zps06325f5b.png")
+
+        hotel3 = r.message(msg="America's Best Value Inn and Suites - 10 Hallam St, SF CA\n\n")
+        hotel3.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at35721PM_zps0dacbc56.png")
+
+        hotel4 = r.message(msg="The Carriage Inn - 140 7th St, SF CA\n\n")
+        hotel4.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at35757PM_zps3f16d71a.png")
+
+        hotel5 = r.message(msg="Intercontinental San Francisco - 888 Howard Street, SF CA\n\n")
+        hotel5.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at35816PM_zpsea707882.png")
+
+
 
 
     elif command is TConDirections.FOOD:
@@ -361,7 +377,7 @@ def _get_tcon_response(command):
 
         rest5 =   r.message("Saffron 685 - 685 Townsend St, SF CA\n\n")
         rest5.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at25324PM_zps7985ec94.png")
-        r.message(msg=food_msg)
+
     elif command is TConDirections.TCON:
         tcon_msg = "TCon rooms TBD:\n\n"
         r.message(msg=tcon_msg)
