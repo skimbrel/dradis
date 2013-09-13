@@ -6,6 +6,7 @@ import requests
 
 MESSAGES_URL = 'https://api.twilio.com/2010-04-01/Accounts/{acct_sid}/Messages'
 TWILIO_SHORTCODE = '894546'
+STEPS_KEY_TMPL = "steps:{phone_number}"
 
 
 def send_message(to, from_, body=None, media_urls=None):
@@ -31,18 +32,25 @@ def send_message(to, from_, body=None, media_urls=None):
     res = requests.post(
         MESSAGES_URL.format(acct_sid=sender_account),
         auth=(account_sid, auth_token),
-        params=params,
+        data=params,
     )
 
     if res.status_code != 201:
-        raise ValueError("Error sending message: {}".format(res.content))
+        raise ValueError("Error sending message: {} (request: {}, {})".format(
+            res.content,
+            res.url,
+            params,
+        ))
 
 
 def send_directions_page(recipient, page_size):
     redis_client = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379'))
+    key = STEPS_KEY_TMPL.format(phone_number=recipient)
 
-    steps = redis_client.lrange(recipient, page_size)
-    for step in steps:
+    steps = redis_client.lrange(key, 0, page_size - 1)
+    redis_client.lrem(key, page_size)
+    head, tail = steps[:-1], steps[-1]
+    for step in head:
         decoded = json.loads(step)
         send_message(
             recipient,
@@ -51,4 +59,15 @@ def send_directions_page(recipient, page_size):
             media_urls=[decoded['image']],
         )
 
-    redis_client.lrem(recipient, page_size)
+    decoded = json.loads(tail)
+    if redis_client.llen(key) > 0:
+        body = '{} (Reply "next" for next page)'.format(decoded['text'])
+    else:
+        body = decoded['text']
+
+    send_message(
+        recipient,
+        TWILIO_SHORTCODE,
+        body=body,
+        media_urls=[decoded['image']],
+    )

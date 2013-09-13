@@ -157,6 +157,10 @@ def handle_request():
     if preset is not None:
         response = _get_tcon_response(preset)
         return unicode(response)
+    elif body.lower() == 'next':
+        _send_next_page(phone_number, PAGE_SIZE)
+        response = twiml.Response()
+        return unicode(response)
 
     elif nav_cmd is not None:
         if location:
@@ -260,7 +264,7 @@ def get_steps(orig, dest):
         lat = item["start_location"]["lat"]
         lon = item["start_location"]["lng"]
         heading = _heading(item["start_location"], item["end_location"])
-        instructions = "{}. {}".format(
+        instructions = u"{}. {}".format(
             idx + 1,
             strip_tags(item["html_instructions"]),
         )
@@ -282,7 +286,7 @@ def get_steps(orig, dest):
     params.update(DEFAULT_MAPS_PARAMS)
 
     streetview_url = '{}?{}'.format(STREETVIEW_URI, urlencode(params))
-    arrival_msg = "Hopefully you ended up somewhere looking sort of like this."
+    arrival_msg = u"Hopefully you ended up somewhere looking sort of like this."
     steps.append({'text': arrival_msg, 'image': streetview_url})
 
     return steps
@@ -310,7 +314,7 @@ def _store_steps(phone_number, steps):
 
 
 def _send_next_page(phone_number, page_size):
-    worker_queue.send(send_directions_page, phone_number, page_size)
+    worker_queue.enqueue(send_directions_page, phone_number, page_size)
 
 
 def _parse_twiliocon_presets(body):
