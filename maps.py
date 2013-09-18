@@ -383,8 +383,8 @@ def _get_tcon_response(command):
         rest5.media("http://i124.photobucket.com/albums/p32/taernim/ScreenShot2013-09-12at25324PM_zps7985ec94.png")
 
     elif command is TConDirections.TCON:
-        tcon_msg = "TCon rooms TBD:\n\n"
-        r.message(msg=tcon_msg)
+        tcon =    r.message("Here is the map of TwilioCon\n")
+        tcon.media("http://i124.photobucket.com/albums/p32/taernim/010c_twiliocon_wayfare_1600x758_zps228d4d3b.png")
 
     else:
         raise ValueError("Unknown Twiliocon command {}".format(command))
