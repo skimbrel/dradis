@@ -7,6 +7,7 @@ import requests
 MESSAGES_URL = 'https://api.twilio.com/2010-04-01/Accounts/{acct_sid}/Messages'
 TWILIO_SHORTCODE = '894546'
 STEPS_KEY_TMPL = "steps:{phone_number}"
+REDIS_EXPIRATION = 6 * 60 * 60
 
 
 def send_message(to, from_, body=None, media_urls=None):
@@ -63,6 +64,7 @@ def send_directions_page(recipient, page_size):
     decoded = json.loads(tail)
     if redis_client.llen(key) > 0:
         body = '{} (Reply "next" for next page)'.format(decoded['text'])
+        redis_client.expire(key, REDIS_EXPIRATION)
     else:
         body = decoded['text']
 

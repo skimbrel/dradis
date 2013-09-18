@@ -1,4 +1,4 @@
-import json 
+import json
 import logging
 import os
 import re
@@ -22,7 +22,7 @@ import twiml
 from client import send_directions_page
 from worker import conn
 
- 
+
 DEBUG = False
 
 app = flask.Flask(__name__)
@@ -38,6 +38,8 @@ STATIC_MAPS_URI = 'https://maps.googleapis.com/maps/api/staticmap'
 DEFAULT_MAPS_PARAMS = {'sensor': 'false', 'size': '640x640'}
 
 DEFAULT_ZOOM = '15'
+
+REDIS_EXPIRATION = 6 * 60 * 60  # Six hours
 
 LAT_PAN_DISTANCE_MAP = {
     '20': 0.0005,
@@ -301,6 +303,7 @@ def _store_location(phone_number, location_dict):
         phone_number,
         location_dict,
     )
+    redis_client.expire(phone_number, REDIS_EXPIRATION)
 
 
 def _store_steps(phone_number, steps):
@@ -311,6 +314,7 @@ def _store_steps(phone_number, steps):
     redis_client.delete(key)
 
     redis_client.rpush(key, *encoded_steps)
+    redis_client.expire(key, REDIS_EXPIRATION)
 
 
 def _send_next_page(phone_number, page_size):
